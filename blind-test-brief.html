@@ -1,0 +1,152 @@
+<title>Blind Replication Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one readable column, a memo for an engineer; file names and commands set in mono. */
+:root {
+  --paper: #f6f7f5;
+  --ink: #1d2428;
+  --muted: #5b666c;
+  --rule: #d9dedb;
+  --accent: #116466;
+  --accent-soft: #e2efee;
+  --stop: #9a3b2e;
+  --stop-soft: #f5e6e2;
+  --code-bg: #eceeec;
+  --display: "Newsreader", Georgia, "Times New Roman", serif;
+  --body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14191b; --ink: #e4e9e7; --muted: #9aa6a4; --rule: #2c3538;
+    --accent: #5fb8b4; --accent-soft: #1b2c2d; --stop: #e08a7a; --stop-soft: #2e1f1c; --code-bg: #1d2427;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #14191b; --ink: #e4e9e7; --muted: #9aa6a4; --rule: #2c3538;
+  --accent: #5fb8b4; --accent-soft: #1b2c2d; --stop: #e08a7a; --stop-soft: #2e1f1c; --code-bg: #1d2427;
+  color-scheme: dark;
+}
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; }
+.page { max-width: 760px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 56px; display: grid; gap: 28px; }
+header { display: grid; gap: 6px; border-bottom: 1px solid var(--rule); padding-bottom: 18px; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--display); font-weight: 600; font-size: 34px; line-height: 1.15; margin: 0; text-wrap: balance; }
+.lede { margin: 0; max-width: 62ch; color: var(--ink); }
+h2 { font-family: var(--display); font-weight: 600; font-size: 21px; margin: 0; text-wrap: balance; }
+section { display: grid; gap: 10px; }
+p { margin: 0; max-width: 65ch; }
+.muted { color: var(--muted); }
+code, .mono { font-family: var(--mono); font-size: 13px; }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.bar > div { background: var(--accent-soft); border-radius: 8px; padding: 12px 14px; display: grid; gap: 2px; min-width: 0; }
+.bar .k { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.bar .v { font-weight: 600; }
+.tree { background: var(--code-bg); border-radius: 8px; padding: 14px 16px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.7; margin: 0; white-space: pre; }
+.tree .c { color: var(--muted); }
+.tree .s { color: var(--accent); font-weight: 500; }
+.tree .x { color: var(--stop); font-weight: 500; }
+ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 10px; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; }
+ol.steps li::before { content: counter(s); font-family: var(--mono); font-size: 13px; color: var(--accent); border: 1px solid var(--accent); border-radius: 50%; width: 22px; height: 22px; display: grid; place-items: center; margin-top: 1px; }
+ol.steps li > div { min-width: 0; }
+ol.steps b { font-weight: 600; }
+.never { border-left: 4px solid var(--stop); background: var(--stop-soft); border-radius: 0 8px 8px 0; padding: 14px 16px; display: grid; gap: 8px; }
+.never h2 { color: var(--stop); font-size: 19px; }
+.never ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+.tablewrap { overflow-x: auto; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-weight: 600; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+footer { border-top: 1px solid var(--rule); padding-top: 14px; font-size: 13px; color: var(--muted); }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 480px) { h1 { font-size: 28px; } .page { padding-block: 28px 40px; } }
+</style>
+
+<div class="page">
+  <header>
+    <div class="eyebrow">For Bhadri · from Prasanna · Oct 7, 2026</div>
+    <h1>Blind replication kit: zebrafish liver single-cell test</h1>
+    <p class="lede">Can an AI agent do a bioinformatician's job? We give an agent public single-cell data from a zebrafish liver study, plus the experiment design, but not the paper. Separate agents then check whether it found what the authors found. No step needs biology knowledge from you: terms like UMI and Drop-seq are for the agents.</p>
+  </header>
+
+  <section>
+    <h2>What counts as success</h2>
+    <div class="bar">
+      <div><span class="k">Pass bar</span><span class="v">3 of 6 core findings, no major false claims (both defined in the answer key)</span></div>
+      <div><span class="k">Visual proof</span><span class="v">Agent's figure beside the paper's, plus a scorecard grid</span></div>
+      <div><span class="k">Your role</span><span class="v">Run the agents in order. Prasanna judges the biology.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What you're getting</h2>
+    <p>Run from the public GitHub repo, <code>blind-replication-kit-public</code>; start with <code>README.md</code>, it has every command. Only the answer key and scorecard template are kept out of it. They live in the private repo and are needed only for grading.</p>
+<pre class="tree">README.md                   <span class="c">run order and every command</span>
+blind-test-brief.html       <span class="c">this page. Never the analyst.</span>
+<span class="s">for-agent/</span>                  <span class="c">copied into the analyst's folder for it (run-b/ for raw reads)</span>
+  analysis-brief.md         <span class="c">design + 6 open questions (given first)</span>
+  sample_sheet.csv          <span class="c">28 samples, neutral names S01 to S28</span>
+  environment.md            <span class="c">software to install before going offline</span>
+  followup-questions.md     <span class="c">14 more questions, given only after Part 1 is frozen</span>
+<span class="x">not-for-analyst/</span>            <span class="c">graders, reconciler, visuals, you, Prasanna. Never the analyst.</span>
+  setup_data.sh             <span class="c">downloads + blinds the counts (Run A)</span>
+  setup_raw.sh              <span class="c">downloads + blinds the raw reads (Run B)</span>
+  rename_map.csv            <span class="c">maps S01..S28 back to the public records</span>
+  scoring-key.md            <span class="c">the answer key (private repo only)</span>
+  grader-instructions.md    <span class="c">for the 2 graders and the reconciler</span>
+  visuals-instructions.md   <span class="c">side-by-side figure + scorecard</span>
+  scorecard.csv             <span class="c">template the graders fill in (private repo only)</span>
+background/                 <span class="c">optional reading: project-primer.html (and .pdf), landscape.md, novaflow.md</span></pre>
+    <p class="muted">The background notes cover who else builds agents like this, published benchmarks, and Novaflow, the closest startup. Not needed to run the test.</p>
+  </section>
+
+  <section>
+    <h2>The data</h2>
+    <div class="tablewrap">
+    <table>
+      <thead><tr><th>What</th><th>Size</th><th>Where it lives</th></tr></thead>
+      <tbody>
+        <tr><td>28 count tables, one per sample: genes × cell barcodes, UMI counts, gzipped text (Drop-seq). Not yet filtered to real cells; that is part of the agent's job.</td><td class="num">59 MB</td><td>GEO, the public NCBI archive. <code>setup_data.sh</code> downloads it. <b>Not in the repo.</b></td></tr>
+        <tr><td>Raw sequencing reads (FASTQ), 28 runs</td><td class="num">≈ 91 GB</td><td>Public archive (ENA). Needed only for Run B; <code>setup_raw.sh</code> downloads it to your own Linux machine or a cloud machine. <b>Not in the repo.</b></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Run order</h2>
+    <ol class="steps">
+      <li><div><b>Setup</b>, with internet. <code>bash not-for-analyst/setup_data.sh ~/blindtest/analyst</code> downloads the data, blinds it, and copies in the brief, sample sheet and environment list. Use a work folder outside the repo.</div></li>
+      <li><div><b>Build the sandbox.</b> Install everything in <code>environment.md</code> while online, then cut the network and mount only the analyst folder.</div></li>
+      <li><div><b>Analyst, Part 1.</b> Fresh agent. Prompt: "Read analysis-brief.md and follow it. Save all outputs under outputs/." Then freeze a copy of Part 1 with checksums.</div></li>
+      <li><div><b>Analyst, Parts 2 and 3.</b> Add <code>followup-questions.md</code>. Prompt: "Read followup-questions.md and follow it." Keep the transcript.</div></li>
+      <li><div><b>Two graders</b>, separate fresh sessions, no internet. Each gets the grader instructions, the answer key and a blank scorecard from the private repo, and the analyst's outputs under a neutral name.</div></li>
+      <li><div><b>Reconciler</b> merges the gradings into one scorecard and a short list for Prasanna.</div></li>
+      <li><div><b>Prasanna</b> decides the open points.</div></li>
+      <li><div><b>Visuals agent</b>, with internet, makes the side-by-side figure and the scorecard grid.</div></li>
+    </ol>
+    <p class="muted">A runner agent can read the repo and drive these steps, but must never do the analysis itself; it starts a fresh analyst. Log the tool, model, time and cost of every run; nobody knows those numbers yet. Optional: repeat steps 3 to 8 with existing tools such as Biomni or Edison Analysis, and check each tool's terms before publishing a comparison.</p>
+    <p class="muted"><b>Run B</b>, after Run A: the same test from the 91 GB of raw reads, so the agent also has to turn reads into counts. <code>setup_raw.sh</code> downloads and blinds them; the README has the steps.</p>
+  </section>
+
+  <section class="never">
+    <h2>Never</h2>
+    <ul>
+      <li>Let the analyst see <code>not-for-analyst/</code>, this page, the setup report, the internet, or the archive.</li>
+      <li>Let the analyst run the download. The archive page names the paper, which would unblind the test.</li>
+      <li>Give the analyst <code>followup-questions.md</code> before Part 1 is frozen.</li>
+      <li>Fine-tune or train a model on this repo.</li>
+      <li>Commit the data. Put the answer key, or grader, reconciler or visuals outputs, in the public repo or its public Actions logs, or make the private repo public. A public answer key can leak into future models.</li>
+      <li>Add lab data that isn't public. Prasanna checks with the institution first.</li>
+    </ul>
+  </section>
+
+  <footer>Questions about the biology go to Prasanna. Everything here uses public data only.</footer>
+</div>

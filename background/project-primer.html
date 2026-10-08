@@ -1,0 +1,330 @@
+<title>AI Bioinformatician Primer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one readable column, sibling of the kit's summary page; each idea gets one small drawn figure on a quiet panel. */
+:root {
+  --paper: #f6f7f5;
+  --ink: #1d2428;
+  --muted: #5b666c;
+  --rule: #d9dedb;
+  --line: #aeb8b4;
+  --panel: #eceeec;
+  --accent: #116466;
+  --accent-soft: #d5e8e6;
+  --g1: #116466;
+  --g2: #b7791f;
+  --g3: #8e4585;
+  --g4: #3b5ba5;
+  --stop: #9a3b2e;
+  --display: "Newsreader", Georgia, "Times New Roman", serif;
+  --body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14191b; --ink: #e4e9e7; --muted: #9aa6a4; --rule: #2c3538; --line: #55625f; --panel: #1c2326;
+    --accent: #5fb8b4; --accent-soft: #1d3436; --g1: #5fb8b4; --g2: #e0b25c; --g3: #d08ccb; --g4: #8fa8e8; --stop: #e08a7a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #14191b; --ink: #e4e9e7; --muted: #9aa6a4; --rule: #2c3538; --line: #55625f; --panel: #1c2326;
+  --accent: #5fb8b4; --accent-soft: #1d3436; --g1: #5fb8b4; --g2: #e0b25c; --g3: #d08ccb; --g4: #8fa8e8; --stop: #e08a7a;
+  color-scheme: dark;
+}
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.6; }
+.page { max-width: 760px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 56px; display: grid; gap: 30px; }
+header { display: grid; gap: 8px; border-bottom: 1px solid var(--rule); padding-bottom: 20px; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--display); font-weight: 600; font-size: 34px; line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0; text-wrap: balance; }
+h3 { font-size: 15px; font-weight: 600; margin: 0; }
+section { display: grid; gap: 12px; }
+p { margin: 0; max-width: 65ch; }
+.lede { font-size: 16.5px; }
+code { font-family: var(--mono); font-size: 13px; background: var(--panel); padding: 1px 5px; border-radius: 4px; }
+
+/* Figures */
+figure { margin: 0; background: var(--panel); border-radius: 10px; padding: 16px; display: grid; gap: 12px; min-width: 0; break-inside: avoid; }
+figcaption { font-size: 13px; color: var(--muted); max-width: 65ch; }
+svg { display: block; width: 100%; height: auto; }
+.cell { fill: var(--paper); stroke: var(--line); stroke-width: 1.5; }
+.nuc { fill: var(--panel); stroke: var(--line); stroke-width: 1.2; }
+.rna { fill: none; stroke-width: 2.6; stroke-linecap: round; }
+.g1 { stroke: var(--g1); } .g2 { stroke: var(--g2); } .g3 { stroke: var(--g3); } .g4 { stroke: var(--g4); }
+.d1 { fill: var(--g1); } .d2 { fill: var(--g2); } .d3 { fill: var(--g3); } .d4 { fill: var(--g4); }
+.xm { stroke: var(--muted); stroke-width: 2; stroke-linecap: round; fill: none; }
+.lab { fill: var(--ink); font: 600 15px var(--body); }
+.cellc { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+.drop { fill: var(--paper); stroke: var(--line); stroke-width: 1.5; }
+.bead { fill: var(--paper); stroke: var(--g1); stroke-width: 1.5; }
+.bar1 { fill: var(--g1); } .bar2 { fill: var(--g2); } .bar3 { fill: var(--line); }
+.arw { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+.arwh { fill: var(--muted); }
+.organ { fill: var(--paper); stroke: var(--line); stroke-width: 1.5; }
+.hep { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+.gone { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 2 2.5; }
+.tagc { fill: var(--g2); stroke: var(--g2); stroke-width: 1.5; }
+.plain { fill: var(--paper); stroke: var(--line); stroke-width: 1.5; }
+.link { stroke: var(--line); stroke-width: 1.5; fill: none; }
+
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.cellfig { display: grid; gap: 6px; justify-items: center; text-align: center; font-size: 13px; }
+.cellfig b { font-weight: 600; }
+.cellfig svg { max-width: 250px; }
+.genes { display: flex; gap: 4px; font-family: var(--mono); font-size: 12px; }
+.genes span { width: 26px; display: grid; justify-items: center; gap: 2px; }
+.genes i { font-style: normal; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 4px; border: 1.5px solid var(--line); color: var(--muted); }
+.genes .on i { color: var(--paper); border-color: transparent; }
+.genes .a i { background: var(--g1); } .genes .b i { background: var(--g2); } .genes .c i { background: var(--g3); } .genes .d i { background: var(--g4); }
+
+.steps4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+.steps4 li { display: grid; gap: 6px; align-content: start; font-size: 13px; min-width: 0; }
+.steps4 b { font-size: 13.5px; font-weight: 600; }
+.steps4 svg { max-width: 140px; }
+.key { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; color: var(--muted); }
+.key span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; background: var(--c); }
+table.counts { border-collapse: collapse; font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+table.counts th, table.counts td { padding: 3px 4px; text-align: right; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+table.counts th { font-weight: 500; color: var(--muted); }
+table.counts th:first-child { text-align: left; }
+table.counts td.z { color: var(--muted); opacity: .7; }
+
+.side { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 18px; align-items: center; }
+ol.list { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14px; }
+ol.list li::marker { color: var(--accent); font-family: var(--mono); font-size: 12px; }
+
+.liver { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); gap: 6px; align-items: center; }
+.liver .st { display: grid; gap: 4px; justify-items: center; text-align: center; font-size: 12.5px; }
+.liver .st svg { max-width: 120px; }
+.liver .go { font-size: 12px; color: var(--muted); text-align: center; line-height: 1.3; }
+
+.lanes { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 16px; }
+.wall { border-left: 2px dashed var(--stop); }
+.lane { display: grid; gap: 10px; align-content: start; }
+.lane h3 { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.lane.grade h3 { color: var(--stop); }
+ol.flow { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: 14px; }
+ol.flow li { display: grid; grid-template-columns: 24px 1fr; gap: 8px; align-items: start; }
+ol.flow li::before { content: attr(data-n); font-family: var(--mono); font-size: 12px; color: var(--accent); border: 1px solid var(--accent); border-radius: 50%; width: 20px; height: 20px; display: grid; place-items: center; }
+.lane.grade ol.flow li::before { color: var(--stop); border-color: var(--stop); }
+
+.note { background: var(--accent-soft); border-radius: 8px; padding: 14px 16px; display: grid; gap: 6px; break-inside: avoid; }
+dl.gloss { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px 24px; margin: 0; }
+dl.gloss div { min-width: 0; }
+dl.gloss dt { font-weight: 600; }
+dl.gloss dd { margin: 0; color: var(--muted); font-size: 14px; }
+footer { border-top: 1px solid var(--rule); padding-top: 14px; font-size: 13px; color: var(--muted); }
+
+@media (max-width: 600px) {
+  h1 { font-size: 28px; }
+  .page { padding-block: 28px 40px; }
+  .steps4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .side { grid-template-columns: 1fr; }
+  .lanes { grid-template-columns: 1fr; }
+  .wall { border-left: 0; border-top: 2px dashed var(--stop); }
+}
+
+@page { size: letter; margin: 12mm 15mm; }
+@media print {
+  :root:root:root {
+    --paper: #ffffff; --ink: #1d2428; --muted: #5b666c; --rule: #d9dedb; --line: #aeb8b4; --panel: #f0f2f0;
+    --accent: #116466; --accent-soft: #e0eeec; --g1: #116466; --g2: #b7791f; --g3: #8e4585; --g4: #3b5ba5; --stop: #9a3b2e;
+    color-scheme: light;
+  }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-size: 10pt; line-height: 1.45; }
+  .page { max-width: none; padding: 0; gap: 16px; }
+  section { gap: 8px; }
+  h1 { font-size: 22pt; }
+  h2 { font-size: 15pt; break-after: avoid; }
+  h3 { break-after: avoid; }
+  figure { padding: 12px; }
+  .page, section { display: block; }
+  .page > * + * { margin-top: 18px; }
+  section > * + * { margin-top: 9px; }
+  .cellfig svg { max-width: 150px; }
+  .side > svg { max-width: 240px; }
+  .steps4 svg { max-width: 110px; }
+  .liver .st svg { max-width: 96px; }
+  figure > svg { max-width: 320px !important; }
+  header { padding-bottom: 12px; gap: 6px; }
+}
+</style>
+
+<div class="page">
+  <header>
+    <div class="eyebrow">For Bhadri · background only; you do not need it to run the test kit</div>
+    <h1>AI bioinformatician: what we are trying to do</h1>
+    <p class="lede">Turning biological data into conclusions needs a bioinformatician, who can both write the analysis code and judge what the results mean. They are scarce, so experiments wait. We want to know whether an AI agent can do that job well enough for a lab to trust it and plan its next experiments.</p>
+  </header>
+
+  <section>
+    <h2>Biology in five minutes</h2>
+
+    <h3>Cells, genes and RNA</h3>
+    <p>Every cell in a fish has the same 26,000 or so genes, like the same codebase with different parts active. An active gene is copied into RNA messages, so counting a cell's messages tells you what the cell is and what it is doing.</p>
+    <figure>
+      <div class="two">
+        <div class="cellfig">
+          <svg viewBox="0 0 200 124" role="img" aria-label="A liver cell holding RNA messages from genes A and C">
+            <rect x="6" y="6" width="188" height="112" rx="22" class="cell"/>
+            <circle cx="100" cy="62" r="20" class="nuc"/>
+            <path d="M22 50q4 -6 8 0t8 0t8 0" class="rna g1"/><path d="M128 26q4 -6 8 0t8 0t8 0" class="rna g1"/><path d="M150 52q4 -6 8 0t8 0t8 0" class="rna g1"/><path d="M54 100q4 -6 8 0t8 0t8 0" class="rna g1"/><path d="M30 78q4 -6 8 0t8 0t8 0" class="rna g3"/><path d="M52 26q4 -6 8 0t8 0t8 0" class="rna g3"/>
+          </svg>
+          <div class="genes"><span class="on a"><i>A</i>4</span><span><i>B</i>0</span><span class="on c"><i>C</i>2</span><span><i>D</i>0</span></div>
+          <b>liver cell</b>
+        </div>
+        <div class="cellfig">
+          <svg viewBox="0 0 200 124" role="img" aria-label="A blood cell holding RNA messages from genes B and D">
+            <ellipse cx="100" cy="62" rx="94" ry="56" class="cell"/>
+            <circle cx="100" cy="62" r="20" class="nuc"/>
+            <path d="M22 50q4 -6 8 0t8 0t8 0" class="rna g2"/><path d="M140 82q4 -6 8 0t8 0t8 0" class="rna g2"/><path d="M124 102q4 -6 8 0t8 0t8 0" class="rna g2"/><path d="M52 26q4 -6 8 0t8 0t8 0" class="rna g4"/><path d="M150 52q4 -6 8 0t8 0t8 0" class="rna g4"/><path d="M30 78q4 -6 8 0t8 0t8 0" class="rna g4"/>
+          </svg>
+          <div class="genes"><span><i>A</i>0</span><span class="on b"><i>B</i>3</span><span><i>C</i>0</span><span class="on d"><i>D</i>3</span></div>
+          <b>blood cell</b>
+        </div>
+      </div>
+      <figcaption>Same four genes, different ones active. Each squiggle is one RNA message; the numbers are the counts.</figcaption>
+    </figure>
+
+    <h3>Single-cell RNA sequencing</h3>
+    <figure>
+      <ol class="steps4">
+        <li>
+          <svg viewBox="0 0 120 72" role="img" aria-label="A clump of cells separated into single cells">
+            <circle cx="22" cy="30" r="9" class="cellc"/><circle cx="36" cy="22" r="9" class="cellc"/><circle cx="32" cy="42" r="9" class="cellc"/><circle cx="18" cy="48" r="9" class="cellc"/><circle cx="44" cy="38" r="9" class="cellc"/>
+            <path d="M58 36h12" class="arw"/><path d="M70 31l7 5-7 5z" class="arwh"/>
+            <circle cx="92" cy="16" r="9" class="cellc"/><circle cx="108" cy="38" r="9" class="cellc"/><circle cx="90" cy="58" r="9" class="cellc"/>
+          </svg>
+          <b>Separate</b><span>Tissue is broken into single cells.</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 120 72" role="img" aria-label="A droplet holding one cell and one barcoded bead">
+            <circle cx="60" cy="36" r="32" class="drop"/>
+            <circle cx="47" cy="40" r="12" class="cellc"/>
+            <circle cx="74" cy="30" r="11" class="bead"/>
+            <path d="M69 24v12M72 23v14M76 23v14M79 24v12" class="rna g1" style="stroke-width:1.6"/>
+          </svg>
+          <b>One cell, one droplet</b><span>Each cell meets a bead with its own barcode.</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 120 72" role="img" aria-label="Three sequenced fragments, each with a barcode, a UMI and a gene piece">
+            <rect x="6" y="10" width="34" height="10" rx="2" class="bar1"/><rect x="42" y="10" width="20" height="10" rx="2" class="bar2"/><rect x="64" y="10" width="50" height="10" rx="2" class="bar3"/>
+            <rect x="6" y="31" width="34" height="10" rx="2" class="bar1"/><rect x="42" y="31" width="20" height="10" rx="2" class="bar2"/><rect x="64" y="31" width="50" height="10" rx="2" class="bar3"/>
+            <rect x="6" y="52" width="34" height="10" rx="2" class="bar1"/><rect x="42" y="52" width="20" height="10" rx="2" class="bar2"/><rect x="64" y="52" width="50" height="10" rx="2" class="bar3"/>
+          </svg>
+          <b>Sequence</b><span>Each sequenced piece, called a read, carries the cell's barcode, a UMI and a piece of a gene.</span>
+          <span class="key"><span style="--c: var(--g1)">barcode</span><span style="--c: var(--g2)">UMI</span><span style="--c: var(--line)">gene</span></span>
+        </li>
+        <li>
+          <table class="counts" aria-label="Illustrative count table">
+            <thead><tr><th>gene</th><th>cell 1</th><th>cell 2</th></tr></thead>
+            <tbody>
+              <tr><th>A</th><td>4</td><td class="z">0</td></tr>
+              <tr><th>B</th><td class="z">0</td><td>3</td></tr>
+              <tr><th>C</th><td>2</td><td class="z">0</td></tr>
+              <tr><th>D</th><td class="z">0</td><td>3</td></tr>
+            </tbody>
+          </table>
+          <b>Count</b><span>One row per gene, one column per cell.</span>
+        </li>
+      </ol>
+      <figcaption>The real table has a row for each of tens of thousands of genes and thousands of columns, mostly zeros: many genes are off and most messages are missed. Copies made for sequencing share a UMI and count once, like de-duplicating retried requests by request ID.</figcaption>
+    </figure>
+
+    <h3>What the analyst does with the table</h3>
+    <figure>
+      <div class="side">
+        <svg viewBox="0 0 300 210" role="img" aria-label="Cells as dots, grouped into four clusters, with a few crosses for droplets that are not real cells"><circle cx="67" cy="68" r="4.6" class="d1"/><circle cx="67" cy="59" r="4.6" class="d1"/><circle cx="58" cy="60" r="4.6" class="d1"/><circle cx="84" cy="67" r="4.6" class="d1"/><circle cx="83" cy="65" r="4.6" class="d1"/><circle cx="75" cy="64" r="4.6" class="d1"/><circle cx="48" cy="71" r="4.6" class="d1"/><circle cx="77" cy="67" r="4.6" class="d1"/><circle cx="48" cy="43" r="4.6" class="d1"/><circle cx="58" cy="57" r="4.6" class="d1"/><circle cx="74" cy="61" r="4.6" class="d1"/><circle cx="77" cy="55" r="4.6" class="d1"/><circle cx="74" cy="66" r="4.6" class="d1"/><circle cx="61" cy="81" r="4.6" class="d1"/><circle cx="229" cy="65" r="4.6" class="d2"/><circle cx="214" cy="44" r="4.6" class="d2"/><circle cx="218" cy="51" r="4.6" class="d2"/><circle cx="230" cy="55" r="4.6" class="d2"/><circle cx="216" cy="41" r="4.6" class="d2"/><circle cx="215" cy="65" r="4.6" class="d2"/><circle cx="211" cy="55" r="4.6" class="d2"/><circle cx="228" cy="36" r="4.6" class="d2"/><circle cx="223" cy="66" r="4.6" class="d2"/><circle cx="196" cy="48" r="4.6" class="d2"/><circle cx="221" cy="43" r="4.6" class="d2"/><circle cx="228" cy="51" r="4.6" class="d2"/><circle cx="203" cy="61" r="4.6" class="d2"/><circle cx="231" cy="62" r="4.6" class="d2"/><circle cx="111" cy="164" r="4.6" class="d3"/><circle cx="94" cy="146" r="4.6" class="d3"/><circle cx="100" cy="153" r="4.6" class="d3"/><circle cx="86" cy="146" r="4.6" class="d3"/><circle cx="79" cy="154" r="4.6" class="d3"/><circle cx="109" cy="138" r="4.6" class="d3"/><circle cx="73" cy="163" r="4.6" class="d3"/><circle cx="111" cy="166" r="4.6" class="d3"/><circle cx="67" cy="132" r="4.6" class="d3"/><circle cx="97" cy="152" r="4.6" class="d3"/><circle cx="77" cy="171" r="4.6" class="d3"/><circle cx="106" cy="162" r="4.6" class="d3"/><circle cx="95" cy="165" r="4.6" class="d3"/><circle cx="113" cy="167" r="4.6" class="d3"/><circle cx="233" cy="156" r="4.6" class="d4"/><circle cx="206" cy="164" r="4.6" class="d4"/><circle cx="238" cy="156" r="4.6" class="d4"/><circle cx="200" cy="143" r="4.6" class="d4"/><circle cx="237" cy="130" r="4.6" class="d4"/><circle cx="224" cy="161" r="4.6" class="d4"/><circle cx="209" cy="168" r="4.6" class="d4"/><circle cx="233" cy="148" r="4.6" class="d4"/><circle cx="230" cy="157" r="4.6" class="d4"/><circle cx="228" cy="163" r="4.6" class="d4"/><circle cx="217" cy="145" r="4.6" class="d4"/><circle cx="240" cy="150" r="4.6" class="d4"/><circle cx="215" cy="160" r="4.6" class="d4"/><circle cx="245" cy="145" r="4.6" class="d4"/><path d="M145 95l10 10M155 95l-10 10" class="xm"/><path d="M21 113l10 10M31 113l-10 10" class="xm"/><path d="M277 93l10 10M287 93l-10 10" class="xm"/><path d="M151 191l10 10M161 191l-10 10" class="xm"/><path d="M145 19l10 10M155 19l-10 10" class="xm"/><path d="M17 191l10 10M27 191l-10 10" class="xm"/><text x="100" y="40" class="lab">1</text><text x="252" y="30" class="lab">2</text><text x="122" y="138" class="lab">3</text><text x="256" y="128" class="lab">4</text></svg>
+        <ol class="list">
+          <li>Remove what is not a real cell (crosses): empty droplets, droplets that caught two cells, dying cells.</li>
+          <li>Group similar cells into clusters (colours).</li>
+          <li>Name each cluster by its marker genes, the genes switched on mainly in that cluster. This needs biology.</li>
+          <li>Compare groups and time points: genes and pathways (sets of genes that work together) going up or down, cells ordered along a process, which cells signal to which.</li>
+          <li>Say what it means, how sure it is, and what experiment would test it.</li>
+        </ol>
+      </div>
+      <figcaption>Each dot is a cell. Cells whose gene counts follow a similar pattern sit together. Colours and numbers here mark clusters, not genes.</figcaption>
+    </figure>
+    <p>Running the tools is routine. The hard part is judgment: technical noise, such as samples processed on different days, can pass for a discovery. That is what we test.</p>
+  </section>
+
+  <section>
+    <h2>The animal: zebrafish liver regeneration</h2>
+    <p>The zebrafish liver can regrow after serious damage. In the fish in this study, the main liver cells carry an engineered enzyme that turns a drug into a poison, so the drug kills only those cells. The liver is then sampled on set days as it recovers.</p>
+    <figure>
+      <div class="liver">
+        <div class="st"><svg viewBox="0 0 96 72" role="img" aria-label="Liver full of its main cells"><rect x="2" y="2" width="92" height="68" rx="22" class="organ"/><circle cx="21" cy="20" r="7" class="hep"/><circle cx="39" cy="20" r="7" class="hep"/><circle cx="57" cy="20" r="7" class="hep"/><circle cx="75" cy="20" r="7" class="hep"/><circle cx="21" cy="36" r="7" class="hep"/><circle cx="39" cy="36" r="7" class="hep"/><circle cx="57" cy="36" r="7" class="hep"/><circle cx="75" cy="36" r="7" class="hep"/><circle cx="21" cy="52" r="7" class="hep"/><circle cx="39" cy="52" r="7" class="hep"/><circle cx="57" cy="52" r="7" class="hep"/><circle cx="75" cy="52" r="7" class="hep"/></svg><span>healthy</span></div>
+        <div class="go">drug<br>→</div>
+        <div class="st"><svg viewBox="0 0 96 72" role="img" aria-label="Liver with its main cells gone"><rect x="2" y="2" width="92" height="68" rx="22" class="organ"/><circle cx="21" cy="20" r="7" class="gone"/><circle cx="39" cy="20" r="7" class="gone"/><circle cx="57" cy="20" r="7" class="gone"/><circle cx="75" cy="20" r="7" class="gone"/><circle cx="21" cy="36" r="7" class="gone"/><circle cx="39" cy="36" r="7" class="gone"/><circle cx="57" cy="36" r="7" class="gone"/><circle cx="75" cy="36" r="7" class="gone"/><circle cx="21" cy="52" r="7" class="gone"/><circle cx="39" cy="52" r="7" class="gone"/><circle cx="57" cy="52" r="7" class="gone"/><circle cx="75" cy="52" r="7" class="gone"/></svg><span>main liver cells die</span></div>
+        <div class="go">days<br>→</div>
+        <div class="st"><svg viewBox="0 0 96 72" role="img" aria-label="Liver full of its main cells"><rect x="2" y="2" width="92" height="68" rx="22" class="organ"/><circle cx="21" cy="20" r="7" class="hep"/><circle cx="39" cy="20" r="7" class="hep"/><circle cx="57" cy="20" r="7" class="hep"/><circle cx="75" cy="20" r="7" class="hep"/><circle cx="21" cy="36" r="7" class="hep"/><circle cx="39" cy="36" r="7" class="hep"/><circle cx="57" cy="36" r="7" class="hep"/><circle cx="75" cy="36" r="7" class="hep"/><circle cx="21" cy="52" r="7" class="hep"/><circle cx="39" cy="52" r="7" class="hep"/><circle cx="57" cy="52" r="7" class="hep"/><circle cx="75" cy="52" r="7" class="hep"/></svg><span>regrown</span></div>
+      </div>
+      <svg viewBox="0 0 300 100" role="img" aria-label="One tagged cell divides; all its descendants keep the tag, while untagged neighbours stay plain" style="max-width:400px">
+        <path d="M40 50L128 26M40 50L128 74M128 26L214 12M128 26L214 37M128 74L214 63M128 74L214 88" class="link"/>
+        <circle cx="34" cy="16" r="9" class="plain"/><circle cx="34" cy="84" r="9" class="plain"/>
+        <circle cx="40" cy="50" r="10" class="tagc"/>
+        <circle cx="128" cy="26" r="10" class="tagc"/><circle cx="128" cy="74" r="10" class="tagc"/>
+        <circle cx="214" cy="12" r="9" class="tagc"/><circle cx="214" cy="37" r="9" class="tagc"/><circle cx="214" cy="63" r="9" class="tagc"/><circle cx="214" cy="88" r="9" class="tagc"/>
+        <circle cx="266" cy="34" r="9" class="plain"/><circle cx="266" cy="66" r="9" class="plain"/>
+      </svg>
+      <figcaption>Top: injury and recovery. Bottom: lineage tracing. A chosen set of cells carries a permanent colour that every descendant inherits, so you can tell what they became.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>The test</h2>
+    <p>We test the agent where the answers are known: a published study from this field, used like a test set with a reviewed answer key.</p>
+    <figure>
+      <div class="lanes">
+        <div class="lane">
+          <h3>Analyst agent: no paper, no internet</h3>
+          <ol class="flow">
+            <li data-n="1">Gets the data and the experiment design.</li>
+            <li data-n="2">Part 1: open questions. Answers are frozen.</li>
+            <li data-n="3">Part 2: targeted questions.</li>
+            <li data-n="4">Part 3: proposes next experiments.</li>
+          </ol>
+        </div>
+        <div class="wall" aria-hidden="true"></div>
+        <div class="lane grade">
+          <h3>Grading: the analyst never sees this side</h3>
+          <ol class="flow">
+            <li data-n="5">Two grader agents score it against the answer key, built mostly from findings the authors confirmed with lab experiments.</li>
+            <li data-n="6">A reconciler merges the two gradings.</li>
+            <li data-n="7">Prasanna decides the open points.</li>
+            <li data-n="8">Output: a scorecard, and the agent's figures beside the paper's.</li>
+          </ol>
+        </div>
+      </div>
+    </figure>
+    <p>Pass bar: at least 3 of 6 core findings fully recovered, with no major false claims. Run A starts from the count table. Run B starts from the raw reads, so the agent also has to build the table.</p>
+    <div class="note">
+      <h3>One limit</h3>
+      <p>The paper is public, so a model may have read it in training. Blinding stops look-ups, not memory. Requiring evidence for every claim makes remembered answers easier to spot, but the clean test comes later, on unpublished data, after Prasanna checks with the institution.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Why it matters</h2>
+    <p>If it works, labs can plan experiments sooner. In the closest public test (scBench-Long, LatchBio, 2026) the best agent passed about 1 run in 4. We found no test on zebrafish, on regeneration, or scored against lab-confirmed findings, though our search was not exhaustive. Details: <code>background/landscape.md</code>.</p>
+  </section>
+
+  <section>
+    <h2>Words you will see in the kit</h2>
+    <dl class="gloss">
+      <div><dt>Hepatocyte</dt><dd>The main working cell of the liver.</dd></div>
+      <div><dt>Biliary epithelial cell (BEC)</dt><dd>A cell lining the bile ducts, the liver's drainage tubes.</dd></div>
+      <div><dt>dpa</dt><dd>Days post ablation: days since the drug treatment that killed the main liver cells.</dd></div>
+      <div><dt>FASTQ</dt><dd>The raw text files of sequencer reads.</dd></div>
+      <div><dt>Drop-seq</dt><dd>The droplet-and-bead method used to make this dataset.</dd></div>
+      <div><dt>GEO</dt><dd>The public NCBI archive where the data are stored.</dd></div>
+      <div><dt>UMI</dt><dd>Unique molecular identifier: a short random tag on each captured RNA message, so copies made for sequencing count once.</dd></div>
+    </dl>
+  </section>
+
+  <footer>Background only. Never give this page to the analyst agent. Questions about the biology go to Prasanna.</footer>
+</div>

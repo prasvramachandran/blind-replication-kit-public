@@ -1,0 +1,21 @@
+# Data never goes in this repo; setup_data.sh downloads it.
+*.fastq
+*.fastq.gz
+*.fq.gz
+*.dge.txt.gz
+*.dge.gene.txt.gz
+*.tar
+*.h5ad
+*.bam
+not-for-analyst/setup_report.txt
+blindtest/
+
+# Answer files and grading outputs live only in the private repo. Never commit them here.
+scoring-key.md
+scorecard.csv
+reconciled_scorecard.csv
+for_prasanna*.md
+major_false_claims.csv
+extra_claims.csv
+part3.csv
+process.csv

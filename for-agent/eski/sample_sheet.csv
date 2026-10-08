@@ -1,0 +1,8 @@
+sample,group,injury,time_after_injury,approx_age_dpf,tamoxifen_4OHT,replicate
+S01,control,none,NA,13,no,1
+S02,control,none,NA,13,no,2
+S03,partial_ablation,Mtz,0dppa,12,yes,1
+S04,partial_ablation,Mtz,1dppa,13,yes,1
+S05,partial_ablation,Mtz,9dppa,21,yes,1
+S06,partial_hepatectomy,surgery,4dpi,14,yes,1
+S07,partial_hepatectomy,surgery,11dpi,21,yes,1

@@ -62,6 +62,15 @@ Run B repeats the test, but the analyst starts from the raw sequencing reads and
 - **B2. Sandbox.** As in step 2 above, but install everything in `for-agent/run-b/environment.md` (adds STAR, samtools, Drop-seq tools) and save the same `resources/` files as for Run A. Mount only `~/blindtest_b/analyst`. Do this only after B1 has finished all 28 samples: if you rerun `setup_raw.sh` after adding these files, its final check stops with "Unexpected files". Move the added files out, rerun, then put them back.
 - **B3 to B8.** Same as steps 3 to 8 above, in `~/blindtest_b`. The follow-up questions file is the same one. In step 5, copy only the analyst's reports, logs, code, figures and tables; leave out FASTQ, BAM, STAR index and count files, and make sure the processing log is included. Graders also score the Run B process items (see `grader-instructions.md`, step 6). Give the report a new neutral name.
 
+## Eski: a second published dataset
+
+A second blind replication test on a different public dataset: Eski et al. 2025, Nat Commun (GEO GSE272484). It covers larval zebrafish livers after partial hepatocyte ablation or partial hepatectomy. The analyst first answers open questions blind. In a targeted second round it gets an adult comparison dataset (GEO GSE181987) and new macrophage questions.
+
+- **Steps:** `not-for-analyst/eski-run-instructions.md`.
+- **Analyst files:** `for-agent/eski/`.
+- **Setup:** `not-for-analyst/setup_eski.py` downloads the 5 GB processed file, keeps only the raw counts, renames everything and scans for leaks.
+- **Private repo only:** the answer key, scorecard and review notes. Graders get them at grading time. Never commit them here; `.gitignore` blocks them.
+
 ## Never
 
 - Never let the analyst see `not-for-analyst/`, `blind-test-brief.html`, `setup_report.txt`, the internet, GEO, or the paper.

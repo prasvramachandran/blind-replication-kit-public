@@ -19,3 +19,12 @@ major_false_claims.csv
 extra_claims.csv
 part3.csv
 process.csv
+
+# Eski answer files, review notes and outputs live only in the private repo. Never commit them here.
+eski-scoring-key.md
+eski-scorecard.csv
+eski-review-sheet.md
+eski-draft-notes.md
+round2_hold/
+setup_report.json
+setup_round2_report.json

@@ -28,3 +28,60 @@ eski-draft-notes.md
 round2_hold/
 setup_report.json
 setup_round2_report.json
+
+# Run outputs, work folders and run-specific code live only in the private repo, wherever they are copied.
+*scoring-key*
+*scorecard*.csv
+*run-c*
+*run_c*
+runs/
+grounding/
+grader*/
+contamination_checks/
+evidence_review/
+literature/
+macrophage_comparison/
+part1_frozen/
+report_A/
+transcripts/
+core_scores.json
+comparison.json
+disagreements.md
+staging/
+round2/
+work_cache/
+adult_source/
+barcode_map.tsv
+sample_map.json
+
+# Allowlists. In not-for-analyst/ and for-agent/ only the files named below are public. Any other file
+# copied into these folders is ignored, whatever its name.
+# Copy named files into this repo one by one. Never copy a whole folder, and never copy another
+# .gitignore over this one. Before each commit, compare `git diff --cached --name-only` with the files
+# you meant to change. A .gitignore cannot stop `git add -f`.
+not-for-analyst/*
+!not-for-analyst/eski-run-instructions.md
+!not-for-analyst/grader-instructions.md
+!not-for-analyst/rename_map.csv
+!not-for-analyst/setup_data.sh
+!not-for-analyst/setup_eski.py
+!not-for-analyst/setup_raw.sh
+!not-for-analyst/visuals-instructions.md
+
+for-agent/*
+!for-agent/analysis-brief.md
+!for-agent/environment.md
+!for-agent/followup-questions.md
+!for-agent/sample_sheet.csv
+!for-agent/eski/
+for-agent/eski/*
+!for-agent/eski/analysis-brief.md
+!for-agent/eski/followup-questions.md
+!for-agent/eski/sample_sheet.csv
+!for-agent/run-b/
+for-agent/run-b/*
+!for-agent/run-b/analysis-brief.md
+!for-agent/run-b/environment.md
+!for-agent/run-b/sample_sheet.csv
+!for-agent/run-b/transgenes.fa
+!for-agent/run-b/transgenes.gtf

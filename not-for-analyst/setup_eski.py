@@ -11,16 +11,24 @@ What it does
 3. Renames samples to S01 to S07 and cell barcodes to neutral IDs (S01_c00001, ...), and writes one
    genes-by-cells table of raw counts per sample (S01.dge.txt.gz ...), the format the pipeline expects.
 4. Copies the brief, sample sheet and environment list into the analyst folder, and writes a gene table to
-   resources/.
+   resources/. That gene table is all resources/ holds until the offline references are added in a later
+   setup step (see the run instructions).
 5. Scans the analyst folder for study-identifying strings.
-6. With --round2, downloads the three adult WT liver samples (GEO GSE181987, GSM5515731 to GSM5515733),
-   which are unfiltered (about 6.8 million barcodes each), keeps the 10,000 barcodes with the most UMIs,
-   renames them A01 to A03, and writes them to a separate folder. Copy that folder into the analyst folder
-   as round2/ only after Part 1 is frozen.
+6. With --round2, downloads the three adult WT liver samples (GEO GSE181987, GSM5515731 to GSM5515733,
+   about 190 MB), resuming any interrupted file and checking each file's size. The matrices are unfiltered
+   (about 6.8 million barcodes each). It keeps the 10,000 barcodes with the most UMIs, renames them A01 to
+   A03, and writes them to a separate folder. Copy that folder into the analyst folder as round2/ only after
+   Part 1 is frozen.
+7. With --scan DIR, runs only the leak scan on DIR. Run it again after adding anything to the analyst folder.
+
+Folder names: an agent sees the full path of the folder it runs in. Use neutral names with no study, author,
+GEO or journal string. The script refuses an --analyst, --round2 or --scan path that contains any FORBIDDEN
+string, ignoring case.
 
 Usage (from the top folder of the kit, on a machine with internet; needs Python 3.9+, h5py and numpy):
-  python3 not-for-analyst/setup_eski.py --staging ~/blindtest_eski/staging --analyst ~/blindtest_eski/analyst
-  python3 not-for-analyst/setup_eski.py --staging ~/blindtest_eski/staging --round2 ~/blindtest_eski/round2_hold
+  python3 not-for-analyst/setup_eski.py --staging ~/blindtest_r2_20261009/staging --analyst ~/blindtest_r2_20261009/analyst
+  python3 not-for-analyst/setup_eski.py --staging ~/blindtest_r2_20261009/staging --round2 ~/blindtest_r2_20261009/round2_hold
+  python3 not-for-analyst/setup_eski.py --scan ~/blindtest_r2_20261009/analyst
 
 Test without downloading: --h5ad PATH uses a local file instead of the GEO download.
 """
@@ -39,6 +47,11 @@ ADULT = [  # GEO sample -> neutral ID
     ("GSM5515731", "WT1", "A01"), ("GSM5515732", "WT2", "A02"), ("GSM5515733", "WT3", "A03"),
 ]
 ADULT_URL = "https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM5515nnn/{gsm}/suppl/{gsm}_{tag}_{kind}"
+ADULT_BYTES = {  # Content-Length reported by GEO for each adult file (HEAD requests, Oct 8, 2026)
+    "GSM5515731_barcodes.tsv.gz": 19367593, "GSM5515731_features.tsv.gz": 312661, "GSM5515731_matrix.mtx.gz": 50826639,
+    "GSM5515732_barcodes.tsv.gz": 19367593, "GSM5515732_features.tsv.gz": 312661, "GSM5515732_matrix.mtx.gz": 41718411,
+    "GSM5515733_barcodes.tsv.gz": 19367593, "GSM5515733_features.tsv.gz": 312661, "GSM5515733_matrix.mtx.gz": 40164506,
+}
 TRANSGENES = ["mTagBFP2", "H2B-mGL", "mCherry-NTR"]
 TOP_BARCODES = 10000  # adult round 2 data: barcodes kept per sample (the GEO matrices are unfiltered)
 # Strings that must not appear in anything the analyst can read except the brief itself
@@ -63,14 +76,28 @@ def sha256(path):
 
 
 def download(url, dest, expected_bytes=None):
+    """Download url to dest. A complete file is skipped and a partial one is resumed (curl -C -)."""
     dest = pathlib.Path(dest)
-    if dest.exists() and expected_bytes and dest.stat().st_size == expected_bytes:
-        log(f"already downloaded: {dest.name}")
-        return
+    if dest.exists() and expected_bytes:
+        size = dest.stat().st_size
+        if size == expected_bytes:
+            log(f"already downloaded: {dest.name}")
+            return
+        if size > expected_bytes:
+            sys.exit(f"{dest} is larger than expected ({size} > {expected_bytes} bytes). Delete it and rerun.")
     log(f"downloading {url}")
     subprocess.run(["curl", "-fL", "--retry", "5", "-C", "-", "-o", str(dest), url], check=True)
     if expected_bytes and dest.stat().st_size != expected_bytes:
-        sys.exit(f"size mismatch for {dest}: {dest.stat().st_size} != {expected_bytes}")
+        sys.exit(f"size mismatch for {dest}: {dest.stat().st_size} != {expected_bytes} bytes. Delete it and rerun.")
+
+
+def check_neutral_path(path, label):
+    """An agent sees the full path of the folder it runs in, so that path must not name the study."""
+    p = pathlib.Path(path).expanduser()
+    text = (str(p) + "\n" + str(p.resolve())).lower()
+    hits = [s for s in FORBIDDEN if s.lower() in text]
+    if hits:
+        sys.exit(f"{label} path {p} contains {hits}. Use a neutral folder name, for example ~/blindtest_r2_20261009.")
 
 
 def decode(arr):
@@ -262,8 +289,8 @@ def build_round2(args):
         files = {}
         for kind in ["barcodes.tsv.gz", "features.tsv.gz", "matrix.mtx.gz"]:
             dest = src / f"{gsm}_{kind}"
-            if not dest.exists():
-                download(ADULT_URL.format(gsm=gsm, tag=tag, kind=kind), dest)
+            # Always call download(): it skips a complete file and resumes a partial one from an interrupted run.
+            download(ADULT_URL.format(gsm=gsm, tag=tag, kind=kind), dest, ADULT_BYTES[dest.name])
             files[kind] = dest
         with gzip.open(files["features.tsv.gz"], "rt") as f:
             feats = [line.rstrip("\n").split("\t") for line in f]
@@ -304,20 +331,40 @@ def build_round2(args):
         sys.exit("LEAK SCAN FOUND STUDY-IDENTIFYING STRINGS in the round 2 folder")
 
 
+def scan_only(folder):
+    folder = pathlib.Path(folder).expanduser()
+    if not folder.is_dir():
+        sys.exit(f"{folder} is not a folder")
+    hits = leak_scan(folder, skip=["analysis-brief.md"])
+    for h in hits:
+        log(h)
+    if hits:
+        sys.exit("LEAK SCAN FOUND STUDY-IDENTIFYING STRINGS; check each hit by hand before any agent sees this folder")
+    log(f"leak scan clean: {folder}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--staging", required=True, help="private folder for downloads, maps and reports")
+    ap.add_argument("--staging", help="private folder for downloads, maps and reports (needed with --analyst or --round2)")
     ap.add_argument("--analyst", help="fresh folder to become the analyst's sandbox (round 1)")
     ap.add_argument("--round2", help="fresh folder for the adult data, held back until Part 1 is frozen")
+    ap.add_argument("--scan", help="only run the leak scan on this folder, for example after adding resources")
     ap.add_argument("--h5ad", help="use this local h5ad instead of downloading (for testing)")
     ap.add_argument("--skip-hash", action="store_true", help="skip hashing the 5 GB source file")
     args = ap.parse_args()
-    if not args.analyst and not args.round2:
-        ap.error("give --analyst, --round2 or both")
+    if not (args.analyst or args.round2 or args.scan):
+        ap.error("give --analyst, --round2 or --scan")
+    if (args.analyst or args.round2) and not args.staging:
+        ap.error("--staging is needed with --analyst or --round2")
+    for label in ("analyst", "round2", "scan"):
+        if getattr(args, label):
+            check_neutral_path(getattr(args, label), "--" + label)
     if args.analyst:
         build_round1(args)
     if args.round2:
         build_round2(args)
+    if args.scan:
+        scan_only(args.scan)
 
 
 if __name__ == "__main__":
